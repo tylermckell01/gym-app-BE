@@ -9,17 +9,23 @@ from util.reflection import populate_object
 
 def add_user(req):
     post_data = req.form if req.form else req.json
+    print("Post Data Received:", post_data) 
 
     new_user = Users.get_new_user()
 
     populate_object(new_user, post_data)
+
+    print("Password Before Hashing:", new_user.password)
+    if not new_user.password:
+        return jsonify({"message": "Password must be provided"}), 400
 
     new_user.password = generate_password_hash(new_user.password).decode('utf8')
 
     try:
         db.session.add(new_user)
         db.session.commit()
-    except:
+    except Exception as e:
+        print("Database Error:", e)
         db.session.rollback()
         return jsonify({"message": 'user could not be created'}), 400
 
