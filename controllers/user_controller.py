@@ -20,6 +20,8 @@ def add_user(req):
         return jsonify({"message": "Password must be provided"}), 400
 
     new_user.password = generate_password_hash(new_user.password).decode('utf8')
+    print("Password After Hashing:", new_user.password)
+
 
     try:
         db.session.add(new_user)
