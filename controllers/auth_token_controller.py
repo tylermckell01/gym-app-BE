@@ -9,6 +9,7 @@ from models.users import Users
 
 def auth_token_add(req):
     post_data = request.json
+    print(f"Incoming data: {post_data}")
     email = post_data.get("email")
     password = post_data.get("password")
 
@@ -21,6 +22,9 @@ def auth_token_add(req):
     user_data = db.session.query(Users).filter(Users.email == email).first()
 
     if user_data:
+        print(f"User found: {user_data.email}")
+        print(f"Stored hashed password: {user_data.password}")
+
         is_password_valid = check_password_hash(user_data.password, password)
         if is_password_valid == False:
             return jsonify({"message": "invalid password"}), 401
@@ -37,3 +41,7 @@ def auth_token_add(req):
         db.session.commit()
 
         return jsonify({"message": "auth success", "auth_info": auth_token_schema.dump(new_token)}), 200
+
+    if not user_data:
+        print(f"No user found with email: {email}")
+        return jsonify({"message": "User not found"}), 404
